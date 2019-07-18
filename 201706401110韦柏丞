@@ -1,0 +1,99 @@
+import java.util.Scanner;
+public class suanfa{
+    static int [] vis=new int[51];/*判断是否要选择物品*/
+    static double bestn,cp;
+    static int [] best=new int[51];
+    static int [] cw=new int[51];
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int[] n =new int[7];
+        int[] k =new int[51];
+        double[][] val = new double[7][151];
+        int[][][] wei = new int[7][151][151];
+        int[][] C = new int[7][151];
+        //输入
+
+        for(int m=0;m<7;m++){
+            n[m] = sc.nextInt();
+            k[m] = sc.nextInt();
+            for(int i=0;i<n[m];i++){
+                val [m][i] = sc.nextDouble();
+            }
+            for(int j=0;j<k[m];j++){
+                for(int i=0;i<n[m];i++){
+                    wei [m][j][i]=sc.nextInt();
+                }
+            }
+
+            for(int i=0;i<k[m];i++){
+                C [m][i] = sc.nextInt();
+            }
+            suanfa.jav(val[m],n[m],k[m],C[m],wei[m]);
+        }
+
+    }
+
+
+    public static void jav(double[] val, int n,int k,int[] C,int[][] wei){
+
+         double cp=0;
+         vis=new int[51];
+         bestn=cp=0;
+        best=new int[51];
+        cw=new int[51];
+        Backtrack(0,val,n,k, C, wei);
+        System.out.print("放入的物品x[");
+        for(int i=0;i<n;++i)
+            System.out.print(best[i]+" ");/*物品下标*/
+        System.out.println("]");
+        System.out.println("总价值为"+bestn);
+
+
+    }
+    /*取当前放入物品的总价值*/
+    public  static double Bound(int i,int n,double val[])
+    {
+        double rp=0;
+        while (i<n){
+            rp+=val[i];
+            i++;
+        }
+        return cp+rp;
+    }
+    public static void Backtrack(int t,double[] val, int n,int k,int[] C,int[][] wei)
+    {
+        int j;
+        if(t>=n){
+            if(cp<=bestn) return;
+            for(j=0;j<n;++j)
+                best[j]=vis[j];
+            bestn=cp;
+            return;
+        }
+        /*判断当前背包是否超过容量上限，如果没有物品可以放入背包，返回当前的价值即为最大价值*/
+        int flag=0;
+        for(int i=0;i<k;++i){
+            if(cw[i]+wei[i][t]>C[i]){
+                flag=1;
+                break;
+            }
+        }
+        /*左子树*/
+        if(flag==0){
+            vis[t]=1;
+            for(int i=0;i<k;++i)
+               cw[i]+=wei[i][t];
+            cp+=val[t];
+            Backtrack(t+1,val,n,k,C,wei);
+            for(int i=0;i<k;++i)
+                cw[i]-=wei[i][t];
+            cp-=val[t];
+        }
+        /*右子树*/
+        if (Bound(t+1,n,val)>bestn){
+            vis[t]=0;
+            Backtrack(t+1,val,n,k,C,wei);
+        }
+    }
+
+}
